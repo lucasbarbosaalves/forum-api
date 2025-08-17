@@ -1,6 +1,6 @@
 import { Answer } from '../../enterprise/entities/answer';
 import { UniqueEntityID } from '../../enterprise/entities/value-objects/unique-entity-id';
-import type { AnswersRepository } from '../repositories/answer-repository';
+import type { AnswerRepository } from '../repositories/answer-repository';
 
 type AnswerQuestionUseCaseRequest = {
   instructorId: string;
@@ -9,7 +9,7 @@ type AnswerQuestionUseCaseRequest = {
 };
 
 export class AnswerQuestionUseCase {
-  constructor(private answerRepository: AnswersRepository) {}
+  constructor(private answerRepository: AnswerRepository) {}
 
   async execute({
     instructorId,
