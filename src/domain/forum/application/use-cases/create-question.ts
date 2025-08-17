@@ -1,6 +1,6 @@
 import { Question } from '../../enterprise/entities/question';
 import { UniqueEntityID } from '../../enterprise/entities/value-objects/unique-entity-id';
-import { QuestionRepository } from '../repositories/question-gateway';
+import { QuestionRepository } from '../repositories/question-repository';
 
 type CreateQuestionUseCaseRequest = {
   authorId: string;

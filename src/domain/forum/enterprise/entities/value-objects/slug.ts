@@ -1,7 +1,7 @@
 export class Slug {
   public value: string;
 
-  constructor(value: string) {
+  private constructor(value: string) {
     this.value = value;
   }
 
@@ -12,6 +12,11 @@ export class Slug {
    *
    * @param text {string}
    */
+
+  static create(text: string): Slug {
+    return new Slug(text);
+  }
+
   static createFromText(text: string): Slug {
     const slugText = text
       .normalize('NFKD')
