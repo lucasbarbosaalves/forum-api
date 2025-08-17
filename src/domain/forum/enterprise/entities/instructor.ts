@@ -1,4 +1,4 @@
-import { Entity } from '@/core/entities/entity';
+import { Entity } from '@/shared/domain/entities/entity';
 import type { UniqueEntityID } from './value-objects/unique-entity-id';
 
 interface InstructorProps {

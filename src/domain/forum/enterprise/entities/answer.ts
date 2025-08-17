@@ -1,5 +1,5 @@
-import { Entity } from '@/core/entities/entity';
-import type { Optional } from '@/core/types/optional';
+import { Entity } from '@/shared/domain/entities/entity';
+import type { Optional } from '@/shared/types/optional';
 import type { UniqueEntityID } from './value-objects/unique-entity-id';
 
 interface AnswerProps {

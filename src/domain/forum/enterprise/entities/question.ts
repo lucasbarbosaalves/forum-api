@@ -1,7 +1,7 @@
-import { Entity } from '@/core/entities/entity';
+import { Entity } from '@/shared/domain/entities/entity';
 import { UniqueEntityID } from './value-objects/unique-entity-id';
 import { Slug } from './value-objects/slug';
-import type { Optional } from '@/core/types/optional';
+import type { Optional } from '@/shared/types/optional';
 import dayjs from 'dayjs';
 
 interface QuestionProps {
@@ -16,7 +16,7 @@ interface QuestionProps {
 
 export class Question extends Entity<QuestionProps> {
   static create(
-    props: Optional<QuestionProps, 'createdAt'>,
+    props: Optional<QuestionProps, 'createdAt' | 'slug'>,
     id?: UniqueEntityID
   ) {
     const question = new Question(
