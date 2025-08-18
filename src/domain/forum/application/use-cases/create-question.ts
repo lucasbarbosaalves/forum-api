@@ -1,4 +1,5 @@
 import { Question } from '../../enterprise/entities/question';
+import { QuestionAttachment } from '../../enterprise/entities/question-attachment';
 import { UniqueEntityID } from '../../enterprise/entities/value-objects/unique-entity-id';
 import { QuestionRepository } from '../repositories/question-repository';
 import { Either, right } from '@/shared/either';
@@ -7,6 +8,7 @@ type CreateQuestionUseCaseRequest = {
   authorId: string;
   title: string;
   content: string;
+  attachmentsId: string[];
 };
 
 type CreateQuestionUseCaseResponse = Either<never, { question: Question }>;
@@ -18,12 +20,22 @@ export class CreateQuestionUseCase {
     authorId,
     title,
     content,
+    attachmentsId,
   }: CreateQuestionUseCaseRequest): Promise<CreateQuestionUseCaseResponse> {
     const question = Question.create({
       authorId: new UniqueEntityID(authorId),
       title,
       content,
     });
+
+    const questionAttachments = attachmentsId.map((attachmentId) => {
+      return QuestionAttachment.create({
+        attachmentId: new UniqueEntityID(attachmentId),
+        questionId: question.id,
+      });
+    });
+
+    question.attachments = questionAttachments;
 
     await this.questionRepository.create(question);
 
