@@ -1,15 +1,19 @@
 import { Question } from '../../enterprise/entities/question';
 import { AnswerRepository } from '../repositories/answer-repository';
 import { QuestionRepository } from '../repositories/question-repository';
+import { Either, left, right } from '@/shared/either';
+import { ResourceNotFound } from './errors/resource-not-found';
+import { NotAllowedError } from './errors/not-allowed-error';
 
 type ChooseBestAnswerQuestionUseCaseRequest = {
   authorId: string;
   answerId: string;
 };
 
-type ChooseBestAnswerQuestionUseCaseResponse = {
-  question: Question;
-};
+type ChooseBestAnswerQuestionUseCaseResponse = Either<
+  ResourceNotFound | NotAllowedError,
+  { question: Question }
+>;
 
 export class ChooseBestAnswerQuestionUseCase {
   constructor(
@@ -32,17 +36,17 @@ export class ChooseBestAnswerQuestionUseCase {
     );
 
     if (!question) {
-      throw new Error('Question not found');
+      return left(new ResourceNotFound());
     }
 
     if (authorId !== question.authorId.toString()) {
-      throw new Error('Unauthorized to choose this answer');
+      return left(new NotAllowedError());
     }
 
     question.bestAnswerId = answer.id;
 
     await this.questionRepository.save(question);
 
-    return { question };
+    return right({ question });
   }
 }

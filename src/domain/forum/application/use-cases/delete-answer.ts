@@ -1,14 +1,18 @@
 import { Answer } from '@/domain/forum/enterprise/entities/answer';
 import { AnswerRepository } from '../repositories/answer-repository';
+import { Either, left, right } from '@/shared/either';
+import { ResourceNotFound } from './errors/resource-not-found';
+import { NotAllowedError } from './errors/not-allowed-error';
 
 type DeleteAnswerUseCaseRequest = {
   authorId: string;
   answerId: string;
 };
 
-type DeleteAnswerUseCaseResponse = {
-  answer: Answer;
-};
+type DeleteAnswerUseCaseResponse = Either<
+  ResourceNotFound | NotAllowedError,
+  { answer: Answer }
+>;
 
 export class DeleteAnswerUseCase {
   constructor(private answerRepository: AnswerRepository) {}
@@ -20,15 +24,15 @@ export class DeleteAnswerUseCase {
     const answer = await this.answerRepository.findById(answerId);
 
     if (!answer) {
-      throw new Error('Answer not found');
+      return left(new ResourceNotFound());
     }
 
     if (answer.authorId.toString() !== authorId) {
-      throw new Error('Unauthorized');
+      return left(new NotAllowedError());
     }
 
     await this.answerRepository.delete(answer);
 
-    return { answer };
+    return right({ answer });
   }
 }

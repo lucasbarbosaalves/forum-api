@@ -1,5 +1,8 @@
 import { Answer } from '@/domain/forum/enterprise/entities/answer';
 import { AnswerRepository } from '../repositories/answer-repository';
+import { Either, left, right } from '@/shared/either';
+import { ResourceNotFound } from './errors/resource-not-found';
+import { NotAllowedError } from './errors/not-allowed-error';
 
 type EditAnswerUseCaseRequest = {
   authorId: string;
@@ -7,9 +10,10 @@ type EditAnswerUseCaseRequest = {
   content: string;
 };
 
-type EditAnswerUseCaseResponse = {
-  answer: Answer;
-};
+type EditAnswerUseCaseResponse = Either<
+  ResourceNotFound | NotAllowedError,
+  { answer: Answer }
+>;
 
 export class EditAnswerUseCase {
   constructor(private answerRepository: AnswerRepository) {}
@@ -22,17 +26,17 @@ export class EditAnswerUseCase {
     const answer = await this.answerRepository.findById(questionId);
 
     if (!answer) {
-      throw new Error('Question not found');
+      return left(new ResourceNotFound());
     }
 
     if (answer.authorId.toString() !== authorId) {
-      throw new Error('Unauthorized to edit this answer');
+      return left(new NotAllowedError());
     }
 
     answer.content = content;
 
     await this.answerRepository.save(answer);
 
-    return { answer };
+    return right({ answer });
   }
 }

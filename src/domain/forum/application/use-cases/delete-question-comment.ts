@@ -1,14 +1,13 @@
-import { QuestionComment } from '../../enterprise/entities/question-comment';
+import { Either, left, right } from '@/shared/either';
 import { QuestionCommentRepository } from '../repositories/question-comment-repository';
+import { ResourceNotFound } from './errors/resource-not-found';
 
 type DeleteQuestionCommentUseCaseRequest = {
   authorId: string;
   questionCommentId: string;
 };
 
-type DeleteQuestionCommentUseCaseResponse = {
-  questionComment: QuestionComment;
-};
+type DeleteQuestionCommentUseCaseResponse = Either<ResourceNotFound, {}>;
 
 export class DeleteQuestionCommentUseCase {
   constructor(private questionCommentRepository: QuestionCommentRepository) {}
@@ -22,7 +21,7 @@ export class DeleteQuestionCommentUseCase {
     );
 
     if (!questionComment) {
-      throw new Error('Question comment not found');
+      return left(new ResourceNotFound());
     }
 
     if (authorId) {
@@ -30,6 +29,6 @@ export class DeleteQuestionCommentUseCase {
 
     await this.questionCommentRepository.delete(questionCommentId);
 
-    return { questionComment };
+    return right({});
   }
 }
