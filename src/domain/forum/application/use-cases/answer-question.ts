@@ -2,10 +2,13 @@ import { Either, right } from '@/shared/either';
 import { Answer } from '../../enterprise/entities/answer';
 import { UniqueEntityID } from '../../enterprise/entities/value-objects/unique-entity-id';
 import type { AnswerRepository } from '../repositories/answer-repository';
+import { AnswerAttachment } from '../../enterprise/entities/answer-attachment';
+import { AnswerAttachmentList } from '../../enterprise/entities/answer-attachment-list';
 
 type AnswerQuestionUseCaseRequest = {
   instructorId: string;
   questionId: string;
+  attachmentsIds: string[];
   content: string;
 };
 
@@ -18,6 +21,7 @@ export class AnswerQuestionUseCase {
     instructorId,
     questionId,
     content,
+    attachmentsIds,
   }: AnswerQuestionUseCaseRequest): Promise<AnswerQuestionUseCaseResponse> {
     const answer = Answer.create({
       content,
@@ -25,8 +29,19 @@ export class AnswerQuestionUseCase {
       questionId: new UniqueEntityID(questionId),
     });
 
+    const answerAttachments = attachmentsIds.map((attachmentId) => {
+      return AnswerAttachment.create({
+        attachmentId: new UniqueEntityID(attachmentId),
+        answerId: answer.id,
+      });
+    });
+
+    answer.attachments = new AnswerAttachmentList(answerAttachments);
+
     await this.answerRepository.create(answer);
 
-    return right({ answer });
+    return right({
+      answer,
+    });
   }
 }
