@@ -1,5 +1,6 @@
 import { Question } from '../../enterprise/entities/question';
 import { QuestionAttachment } from '../../enterprise/entities/question-attachment';
+import { QuestionAttachmentList } from '../../enterprise/entities/question-attachment.list';
 import { UniqueEntityID } from '../../enterprise/entities/value-objects/unique-entity-id';
 import { QuestionRepository } from '../repositories/question-repository';
 import { Either, right } from '@/shared/either';
@@ -35,7 +36,7 @@ export class CreateQuestionUseCase {
       });
     });
 
-    question.attachments = questionAttachments;
+    question.attachments = new QuestionAttachmentList(questionAttachments);
 
     await this.questionRepository.create(question);
 
