@@ -5,6 +5,7 @@ import { Slug } from './value-objects/slug';
 import { UniqueEntityID } from './value-objects/unique-entity-id';
 import { QuestionAttachment } from './question-attachment';
 import { QuestionAttachmentList } from './question-attachment.list';
+import { QuestionBestAnswerChosenEvent } from '../events/question-best-answer';
 
 interface QuestionProps {
   title: string;
@@ -18,10 +19,7 @@ interface QuestionProps {
 }
 
 export class Question extends AggregateRoot<QuestionProps> {
-  static create(
-    props: Optional<QuestionProps, 'createdAt' | 'slug' | 'attachments'>,
-    id?: UniqueEntityID
-  ) {
+  static create(props: Optional<QuestionProps, 'createdAt' | 'slug' | 'attachments'>, id?: UniqueEntityID) {
     const question = new Question(
       {
         ...props,
@@ -91,6 +89,14 @@ export class Question extends AggregateRoot<QuestionProps> {
   }
 
   set bestAnswerId(bestAnswerId: UniqueEntityID | undefined) {
+    if (bestAnswerId === undefined) {
+      return;
+    }
+
+    if (bestAnswerId === undefined || !this.props.bestAnswerId?.equals(bestAnswerId)) {
+      this.addDomainEvent(new QuestionBestAnswerChosenEvent(this, bestAnswerId));
+    }
+
     this.props.bestAnswerId = bestAnswerId;
     this.touch();
   }
