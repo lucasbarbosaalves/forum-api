@@ -15,6 +15,7 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
+      "@/generated/*": ["./generated/*"],
       "@/*": ["./src/*"],
       "@config/*": ["src/config/*"],
       "@controllers/*": ["src/controllers/*"],
