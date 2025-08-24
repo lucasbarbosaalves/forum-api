@@ -1,8 +1,8 @@
-import { CurrentUser } from '@/auth/current-user-context';
-import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
-import type { UserPayload } from '@/auth/jwt.strategy';
-import { ZodValidationPipe } from '@/pipe/zod-validation-pipe';
-import { PrismaService } from '@/prisma/prisma.service';
+import { CurrentUser } from '@/infra/auth/current-user-context';
+import { JwtAuthGuard } from '@/infra/auth/jwt-auth.guard';
+import type { UserPayload } from '@/infra/auth/jwt.strategy';
+import { ZodValidationPipe } from '@/infra/http/pipe/zod-validation-pipe';
+import { PrismaService } from '@/infra/prisma/prisma.service';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import z from 'zod';
 
