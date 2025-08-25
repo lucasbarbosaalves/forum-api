@@ -1,6 +1,6 @@
 import { Hasher } from '@/domain/forum/application/cryptography/hasher';
 import { Injectable } from '@nestjs/common';
-import bcrypt from 'node_modules/bcryptjs/umd/types';
+import bcrypt from 'bcryptjs';
 
 @Injectable()
 export class BcryptHasher implements Hasher {
