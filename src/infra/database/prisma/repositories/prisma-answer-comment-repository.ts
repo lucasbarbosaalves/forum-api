@@ -2,23 +2,42 @@ import { AnswerCommentRepository } from '@/domain/forum/application/repositories
 import { AnswerComment } from '@/domain/forum/enterprise/entities/answer-comment';
 import { PaginationParams } from '@/shared/domain/repositories/pagination-params';
 import { Injectable } from '@nestjs/common';
+import { PrismaAnswerCommentMapper } from '../mappers/prisma-answer-comment-mapper';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class PrismaAnswerCommentRepository implements AnswerCommentRepository {
   constructor(private prisma: PrismaService) {}
 
-  create(answerComment: AnswerComment): Promise<void> {
-    throw new Error('Method not implemented.');
+  async create(data: AnswerComment): Promise<void> {
+    const prismaData = PrismaAnswerCommentMapper.toPrisma(data);
+    await this.prisma.comment.create({
+      data: prismaData,
+    });
   }
-  findById(id: string): Promise<AnswerComment | null> {
-    throw new Error('Method not implemented.');
+  async findById(id: string): Promise<AnswerComment | null> {
+    const comment = await this.prisma.comment.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+    return PrismaAnswerCommentMapper.toDomain(comment);
   }
-  delete(id: string): Promise<void> {
-    throw new Error('Method not implemented.');
+  async delete(id: string): Promise<void> {
+    await this.prisma.comment.delete({
+      where: {
+        id,
+      },
+    });
   }
-  findManyByAnswerId(answerId: string, params: PaginationParams): Promise<AnswerComment[]> {
-    throw new Error('Method not implemented.');
+  async findManyByAnswerId(answerId: string, { page }: PaginationParams): Promise<AnswerComment[]> {
+    const comments = await this.prisma.comment.findMany({
+      where: {
+        answerId,
+      },
+      skip: (page - 1) * 10,
+      take: 10,
+    });
+    return comments.map(PrismaAnswerCommentMapper.toDomain);
   }
-  // Implement repository methods here
 }

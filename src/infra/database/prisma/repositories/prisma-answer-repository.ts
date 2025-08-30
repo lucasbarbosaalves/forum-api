@@ -2,26 +2,58 @@ import { AnswerRepository } from '@/domain/forum/application/repositories/answer
 import { Answer } from '@/domain/forum/enterprise/entities/answer';
 import { PaginationParams } from '@/shared/domain/repositories/pagination-params';
 import { Injectable } from '@nestjs/common';
+import { PrismaAnswerMapper } from '../mappers/prisma-answer-mapper';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class PrismaAnswerRepository implements AnswerRepository {
   constructor(private prisma: PrismaService) {}
 
-  save(question: Answer): Promise<void> {
-    throw new Error('Method not implemented.');
+  async save(answer: Answer): Promise<void> {
+    const data = PrismaAnswerMapper.toPrisma(answer);
+    await this.prisma.answer.update({
+      where: {
+        id: data.id,
+      },
+      data,
+    });
   }
-  create(answer: Answer): Promise<void> {
-    throw new Error('Method not implemented.');
+  async create(answer: Answer): Promise<void> {
+    const data = PrismaAnswerMapper.toPrisma(answer);
+    await this.prisma.answer.create({
+      data,
+    });
   }
-  findById(id: string): Promise<Answer | null> {
-    throw new Error('Method not implemented.');
+  async findById(id: string): Promise<Answer | null> {
+    const answer = await this.prisma.answer.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!answer) return null;
+
+    return PrismaAnswerMapper.toDomain(answer);
   }
-  delete(answer: Answer): Promise<void> {
-    throw new Error('Method not implemented.');
+  async delete(answer: Answer): Promise<void> {
+    const data = PrismaAnswerMapper.toPrisma(answer);
+    await this.prisma.answer.delete({
+      where: {
+        id: data.id,
+      },
+    });
   }
-  findManyByQuestionId(questionId: string, params: PaginationParams): Promise<Answer[]> {
-    throw new Error('Method not implemented.');
+  async findManyByQuestionId(questionId: string, { page }: PaginationParams): Promise<Answer[]> {
+    const answers = await this.prisma.answer.findMany({
+      where: {
+        questionId,
+      },
+      skip: (page - 1) * 10,
+      take: 10,
+    });
+
+    return answers.map((answer) => {
+      return PrismaAnswerMapper.toDomain(answer);
+    });
   }
-  // Implement repository methods here
 }
