@@ -7,6 +7,7 @@ import { QuestionAttachmentRepository } from '../repositories/question-attachmen
 import { QuestionAttachmentList } from '../../enterprise/entities/question-attachment.list';
 import { QuestionAttachment } from '../../enterprise/entities/question-attachment';
 import { UniqueEntityID } from '../../enterprise/entities/value-objects/unique-entity-id';
+import { Injectable } from '@nestjs/common';
 
 type EditQuestionUseCaseRequest = {
   authorId: string;
@@ -16,11 +17,9 @@ type EditQuestionUseCaseRequest = {
   attachmentsId: string[];
 };
 
-type EditQuestionUseCaseResponse = Either<
-  ResourceNotFound | NotAllowedError,
-  { question: Question }
->;
+type EditQuestionUseCaseResponse = Either<ResourceNotFound | NotAllowedError, { question: Question }>;
 
+@Injectable()
 export class EditQuestionUseCase {
   constructor(
     private questionRepository: QuestionRepository,
@@ -44,12 +43,9 @@ export class EditQuestionUseCase {
       return left(new NotAllowedError());
     }
 
-    const currentQuestionAttachment =
-      await this.questionAttachmentRepository.findManyByQuestionId(questionId);
+    const currentQuestionAttachment = await this.questionAttachmentRepository.findManyByQuestionId(questionId);
 
-    const currentQuestionAttachmentList = new QuestionAttachmentList(
-      currentQuestionAttachment
-    );
+    const currentQuestionAttachmentList = new QuestionAttachmentList(currentQuestionAttachment);
 
     const questionAttachments = attachmentsId.map((attachmentId) => {
       return QuestionAttachment.create({

@@ -1,28 +1,32 @@
 import { Answer } from '@/domain/forum/enterprise/entities/answer';
 import { AnswerRepository } from '../repositories/answer-repository';
+import { Injectable } from '@nestjs/common';
+import { Either, right } from '@/shared/either';
 
-type FetchQuestionAnswersUseCaseRequest = {
-  page: number;
+interface FetchQuestionAnswersUseCaseRequest {
   questionId: string;
-};
+  page: number;
+}
 
-type FetchQuestionAnswersUseCaseResponse = {
-  answers: Answer[];
-};
+type FetchQuestionAnswersUseCaseResponse = Either<
+  null,
+  {
+    answers: Answer[];
+  }
+>;
 
+@Injectable()
 export class FetchQuestionAnswersUseCase {
-  constructor(private answerRepository: AnswerRepository) {}
+  constructor(private answersRepository: AnswerRepository) {}
 
   async execute({
-    page,
     questionId,
+    page,
   }: FetchQuestionAnswersUseCaseRequest): Promise<FetchQuestionAnswersUseCaseResponse> {
-    const answers = await this.answerRepository.findManyByQuestionId(
-      questionId,
-      {
-        page,
-      }
-    );
-    return { answers };
+    const answers = await this.answersRepository.findManyByQuestionId(questionId, { page });
+
+    return right({
+      answers,
+    });
   }
 }

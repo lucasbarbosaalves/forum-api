@@ -1,3 +1,4 @@
+import { Either, right } from '@/shared/either';
 import { AnswerComment } from '../../enterprise/entities/answer-comment';
 import { AnswerCommentRepository } from '../repositories/answer-comment-repository';
 
@@ -6,20 +7,17 @@ type FetchAnswerCommentsRequest = {
   page: number;
 };
 
-type FetchAnswerAnswersUseCaseResponse = {
-  answers: AnswerComment[];
-};
+type FetchAnswerCommentsUseCaseResponse = Either<
+  null,
+  {
+    comments: AnswerComment[];
+  }
+>;
 
-export class FetchAnswerAnswersUseCase {
-  constructor(private answerCommentRepositoy: AnswerCommentRepository) {}
-  async execute({
-    page,
-    answerId,
-  }: FetchAnswerCommentsRequest): Promise<FetchAnswerAnswersUseCaseResponse> {
-    const answers = await this.answerCommentRepositoy.findManyByAnswerId(
-      answerId,
-      { page }
-    );
-    return { answers };
+export class FetchAnswerCommentsUseCase {
+  constructor(private answerCommentRepository: AnswerCommentRepository) {}
+  async execute({ page, answerId }: FetchAnswerCommentsRequest): Promise<FetchAnswerCommentsUseCaseResponse> {
+    const comments = await this.answerCommentRepository.findManyByAnswerId(answerId, { page });
+    return right({ comments });
   }
 }

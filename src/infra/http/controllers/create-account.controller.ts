@@ -1,13 +1,10 @@
 import { ZodValidationPipe } from '@/infra/http/pipe/zod-validation-pipe';
-import { PrismaService } from '@/infra/database/prisma/prisma.service';
-import { BadRequestException, ConflictException, Get, HttpCode, UsePipes } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpCode, UsePipes } from '@nestjs/common';
 import { Body, Controller, Post } from '@nestjs/common';
-import { hash } from 'bcryptjs';
 import z from 'zod';
 import { RegisterStudentUseCase } from '@/domain/forum/application/use-cases/register-student';
-import { right } from '@/shared/either';
 import { StudentAlreadyExistsError } from '@/domain/forum/application/use-cases/errors/student-already-exists-error';
-import { WrongCredentialsError } from '@/domain/forum/application/use-cases/errors/wrong-credentials-error';
+import { Public } from '@/infra/auth/public';
 
 const createAccountBodySchema = z.object({
   name: z.string(),
@@ -18,6 +15,7 @@ const createAccountBodySchema = z.object({
 type CreateAccountBody = z.infer<typeof createAccountBodySchema>;
 
 @Controller('accounts')
+@Public()
 export class CreateAccountController {
   constructor(private useCase: RegisterStudentUseCase) {}
 
@@ -37,7 +35,7 @@ export class CreateAccountController {
       const error = result.value;
 
       switch (error.constructor) {
-        case WrongCredentialsError:
+        case StudentAlreadyExistsError:
           throw new ConflictException(error.message);
         default:
           throw new BadRequestException(error.message);
