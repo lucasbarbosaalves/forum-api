@@ -23,7 +23,7 @@
       "@models/*": ["src/models/*"],
       "@utils/*": ["src/utils/*"]
     },
-    "types": ["vitest/globals"],
+    "types": ["vitest/globals", "multer"],
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
