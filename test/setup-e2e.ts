@@ -2,8 +2,12 @@ import { execSync } from 'node:child_process';
 import { randomUUID } from 'crypto';
 import 'dotenv/config';
 import { PrismaClient } from 'generated/prisma';
+import { config } from 'dotenv';
 
 const prisma = new PrismaClient();
+
+config({ path: '.env', override: true });
+config({ path: '.env.test', override: true });
 
 function generateUniqueDatabaseURL(schemaId: string) {
   if (!process.env.DATABASE_URL) {
