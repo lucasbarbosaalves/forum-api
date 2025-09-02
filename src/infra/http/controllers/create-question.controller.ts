@@ -9,6 +9,7 @@ import z from 'zod';
 const createQuestionBody = z.object({
   title: z.string(),
   content: z.string(),
+  attachments: z.array(z.uuid()),
 });
 
 type CreateQuestionBody = z.infer<typeof createQuestionBody>;
@@ -23,13 +24,15 @@ export class CreateQuestionController {
     @Body(new ZodValidationPipe(createQuestionBody)) body: CreateQuestionBody,
     @CurrentUser() user: UserPayload
   ) {
-    const { title, content } = body;
+    const { title, content, attachments } = body;
+
+    const userId = user.sub;
 
     await this.useCase.execute({
       title,
       content,
-      authorId: user.sub,
-      attachmentsId: [],
+      authorId: userId,
+      attachmentsId: attachments,
     });
   }
 }

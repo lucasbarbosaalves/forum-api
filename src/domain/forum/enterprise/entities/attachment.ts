@@ -1,7 +1,7 @@
 import { Entity } from '@/shared/domain/entities/entity';
 import { UniqueEntityID } from './value-objects/unique-entity-id';
 
-type AttachmentProps = {
+export type AttachmentProps = {
   title: string;
   link: string;
 };

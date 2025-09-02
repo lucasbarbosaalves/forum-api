@@ -4,10 +4,12 @@ import { PaginationParams } from '@/shared/domain/repositories/pagination-params
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { PrismaQuestionMapper } from '../mappers/prisma-question-mapper';
+import { QuestionAttachmentRepository } from '@/domain/forum/application/repositories/question-attachment-repository';
+import { DomainEvents } from '@/shared/events/domain-events';
 
 @Injectable()
 export class PrismaQuestionRepository implements QuestionRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private questionAttachmentRepository: QuestionAttachmentRepository) {}
 
   async save(question: Question): Promise<void> {
     const data = PrismaQuestionMapper.toPrisma(question);
@@ -20,9 +22,14 @@ export class PrismaQuestionRepository implements QuestionRepository {
   }
   async create(question: Question): Promise<void> {
     const data = PrismaQuestionMapper.toPrisma(question);
+
     await this.prisma.question.create({
       data,
     });
+
+    await this.questionAttachmentRepository.createMany(question.attachments.getItems());
+
+    DomainEvents.dispatchEventsForAggregate(question.id);
   }
   async findById(id: string): Promise<Question | null> {
     const question = await this.prisma.question.findUnique({
