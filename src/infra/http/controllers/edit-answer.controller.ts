@@ -7,7 +7,7 @@ import { CurrentUser } from '@/infra/auth/current-user-context';
 
 const editAnswerBodySchema = z.object({
   content: z.string(),
-  attachments: z.array(z.string().uuid()).default([]),
+  attachments: z.array(z.uuid()).default([]),
 });
 
 const bodyValidationPipe = new ZodValidationPipe(editAnswerBodySchema);

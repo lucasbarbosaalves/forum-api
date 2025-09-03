@@ -1,5 +1,5 @@
 import { Either, right } from '@/shared/either';
-import { AnswerComment } from '../../enterprise/entities/answer-comment';
+import { CommentWithAuthor } from '../../enterprise/entities/value-objects/comment-with-author';
 import { AnswerCommentRepository } from '../repositories/answer-comment-repository';
 
 type FetchAnswerCommentsRequest = {
@@ -10,14 +10,14 @@ type FetchAnswerCommentsRequest = {
 type FetchAnswerCommentsUseCaseResponse = Either<
   null,
   {
-    comments: AnswerComment[];
+    comments: CommentWithAuthor[];
   }
 >;
 
 export class FetchAnswerCommentsUseCase {
   constructor(private answerCommentRepository: AnswerCommentRepository) {}
   async execute({ page, answerId }: FetchAnswerCommentsRequest): Promise<FetchAnswerCommentsUseCaseResponse> {
-    const comments = await this.answerCommentRepository.findManyByAnswerId(answerId, { page });
+    const comments = await this.answerCommentRepository.findManyByAnswerIdWithAuthor(answerId, { page });
     return right({ comments });
   }
 }

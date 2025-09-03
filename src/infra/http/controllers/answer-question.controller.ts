@@ -8,6 +8,7 @@ import z from 'zod';
 
 const answerQuestionBody = z.object({
   content: z.string(),
+  attachments: z.array(z.uuid()),
 });
 
 type AnswerQuestionBody = z.infer<typeof answerQuestionBody>;
@@ -23,14 +24,14 @@ export class AnswerQuestionController {
     @CurrentUser() user: UserPayload,
     @Param('questionId') questionId: string
   ) {
-    const { content } = body;
+    const { content, attachments } = body;
     const userId = user.sub;
 
     const result = await this.useCase.execute({
       content,
       questionId,
       instructorId: userId,
-      attachmentsIds: [],
+      attachmentsIds: attachments,
     });
 
     if (result.isLeft()) {
