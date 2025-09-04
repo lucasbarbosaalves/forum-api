@@ -8,19 +8,30 @@ import { QuestionAttachmentRepository } from '@/domain/forum/application/reposit
 import { DomainEvents } from '@/shared/events/domain-events';
 import { QuestionDetails } from '@/domain/forum/enterprise/entities/value-objects/question-details';
 import { PrismaQuestionDetailsMapper } from '../mappers/prisma-question-details-mapper';
+import { CacheRepository } from '@/infra/cache/cache-repository';
 
 @Injectable()
 export class PrismaQuestionRepository implements QuestionRepository {
-  constructor(private prisma: PrismaService, private questionAttachmentRepository: QuestionAttachmentRepository) {}
+  constructor(
+    private prisma: PrismaService,
+    private questionAttachmentRepository: QuestionAttachmentRepository,
+    private cache: CacheRepository
+  ) {}
 
   async save(question: Question): Promise<void> {
     const data = PrismaQuestionMapper.toPrisma(question);
-    await this.prisma.question.update({
-      where: {
-        id: data.id,
-      },
-      data,
-    });
+
+    await Promise.all([
+      this.prisma.question.update({
+        where: {
+          id: question.id.toString(),
+        },
+        data,
+      }),
+      this.questionAttachmentRepository.createMany(question.attachments.getNewItems()),
+      this.questionAttachmentRepository.deleteMany(question.attachments.getRemovedItems()),
+      this.cache.delete(`question:${data.slug}:details`),
+    ]);
 
     DomainEvents.dispatchEventsForAggregate(question.id);
   }
@@ -80,6 +91,13 @@ export class PrismaQuestionRepository implements QuestionRepository {
   }
 
   async findDetailsBySlug(slug: string): Promise<QuestionDetails | null> {
+    const cacheHit = await this.cache.get(`question:${slug}:details`);
+
+    if (cacheHit) {
+      const cacheData = JSON.parse(cacheHit);
+
+      return PrismaQuestionDetailsMapper.toDomain(cacheData);
+    }
     const question = await this.prisma.question.findUnique({
       where: {
         slug,
@@ -93,6 +111,10 @@ export class PrismaQuestionRepository implements QuestionRepository {
     if (!question) {
       return null;
     }
-    return PrismaQuestionDetailsMapper.toDomain(question);
+    await this.cache.set(`question:${slug}:details`, JSON.stringify(question));
+
+    const questionDetails = PrismaQuestionDetailsMapper.toDomain(question);
+
+    return questionDetails;
   }
 }
