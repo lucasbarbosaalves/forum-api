@@ -1,21 +1,20 @@
 import { AggregateRoot } from '@/shared/domain/entities/aggregate-root';
 import type { Optional } from '@/shared/types/optional';
 import dayjs from 'dayjs';
+import { QuestionBestAnswerChosenEvent } from '../events/question-best-answer';
+import { QuestionAttachmentList } from './question-attachment.list';
 import { Slug } from './value-objects/slug';
 import { UniqueEntityID } from './value-objects/unique-entity-id';
-import { QuestionAttachment } from './question-attachment';
-import { QuestionAttachmentList } from './question-attachment.list';
-import { QuestionBestAnswerChosenEvent } from '../events/question-best-answer';
 
 interface QuestionProps {
   title: string;
   content: string;
   slug: Slug;
-  bestAnswerId?: UniqueEntityID;
+  bestAnswerId?: UniqueEntityID | null;
   authorId: UniqueEntityID;
   attachments: QuestionAttachmentList;
   createdAt: Date;
-  updatedAt?: Date;
+  updatedAt?: Date | null;
 }
 
 export class Question extends AggregateRoot<QuestionProps> {
@@ -88,8 +87,8 @@ export class Question extends AggregateRoot<QuestionProps> {
     this.touch();
   }
 
-  set bestAnswerId(bestAnswerId: UniqueEntityID | undefined) {
-    if (bestAnswerId === undefined) {
+  set bestAnswerId(bestAnswerId: UniqueEntityID | undefined | null) {
+    if (bestAnswerId === undefined || bestAnswerId === null) {
       return;
     }
 

@@ -3,6 +3,7 @@ import { AnswerCreatedEvent } from '@/domain/forum/enterprise/events/answer-crea
 import { DomainEvents } from '@/shared/events/domain-events';
 import { EventHandler } from '@/shared/events/event-handler';
 import { SendNotification } from '../use-cases/send-notification';
+import { Injectable } from '@nestjs/common';
 
 /**
  * Event handler for the `AnswerCreatedEvent`.
@@ -15,6 +16,7 @@ import { SendNotification } from '../use-cases/send-notification';
  * @method setupSubscriptions Registers the `sendNewAnswerNotification` method as a handler for the `AnswerCreatedEvent`.
  * @method sendNewAnswerNotification Handles the event by executing notification logic when a new answer is created.
  */
+@Injectable()
 export class OnAnswerCreated implements EventHandler {
   constructor(private questionRepository: QuestionRepository, private sendNotification: SendNotification) {
     this.setupSubscriptions();
