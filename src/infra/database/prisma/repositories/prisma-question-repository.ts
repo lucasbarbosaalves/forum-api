@@ -21,6 +21,8 @@ export class PrismaQuestionRepository implements QuestionRepository {
       },
       data,
     });
+
+    DomainEvents.dispatchEventsForAggregate(question.id);
   }
   async create(question: Question): Promise<void> {
     const data = PrismaQuestionMapper.toPrisma(question);

@@ -40,6 +40,8 @@ import { GetQuestionBySlugController } from './controllers/get-question-by-slug.
 import { GetRecentQuestionsController } from './controllers/get-recent-questions.controller';
 import { FetchQuestionAnswersController } from './controllers/list-question-answers.controller';
 import { UploadAttachmentController } from './controllers/upload-attachment.controller';
+import { ReadNotificationController } from './controllers/read-notication.controller';
+import { ReadNotification } from '@/domain/notification/application/use-cases/read-notification';
 
 @Module({
   imports: [DatabaseModule, CryptographyModule, StorageModule],
@@ -63,6 +65,7 @@ import { UploadAttachmentController } from './controllers/upload-attachment.cont
     FetchQuestionCommentsController,
     FetchAnswerCommentsController,
     UploadAttachmentController,
+    ReadNotificationController,
   ],
   providers: [
     CreateQuestionUseCase,
@@ -84,6 +87,7 @@ import { UploadAttachmentController } from './controllers/upload-attachment.cont
     FetchQuestionCommentsUseCase,
     FetchAnswerCommentsUseCase,
     UploadAndCreateAttachmentUseCase,
+    ReadNotification,
   ],
 })
 export class HttpModule {}
